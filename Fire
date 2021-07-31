@@ -1,0 +1,54 @@
+
+
+    game.ReplicatedStorage.Randomizer.Value= true
+
+for _,v in pairs(game.ReplicatedStorage.Levels:GetChildren())do
+        v.Value="Firebrand"
+    end
+    game.ReplicatedStorage.Events.LoadCharacter:FireServer()
+    
+    local mt = getrawmetatable(game)
+pcall(function()
+    make_writeable(mt)
+end)
+pcall(function()
+    setreadonly(mt, false)
+end)
+local namecall=mt.__namecall
+
+mt.__namecall=newcclosure(function(self,...)
+    local args={...}
+    local func=args[#args]
+    if tostring(self) == "HitPart" then
+        local guntoget = game.Players.LocalPlayer.Status.Level
+        local gun = game.ReplicatedStorage.Levels[guntoget.Value].Value
+        local wep = game.ReplicatedStorage.Weapons[gun]
+        local DMG
+        if wep.Name == "Laser Rifle" or wep.Name == "Pulse Laser" then
+            DMG = (wep.DMG.Value/36)*10
+        else
+            DMG = (wep.DMG.Value/36)*2
+        end
+
+    if game.Players.LocalPlayer.Status.Level.Value ~= 32 then
+        local argm = {
+                [1] = args[1],
+                [2] = wep,
+                [3] = DMG,
+            [4] = Vector3.new(args[1].Position.X, args[1].Position.Y, args[1].Position.Z)
+            }
+        game:GetService("ReplicatedStorage").Events.Burn:FireServer(unpack(argm))
+    else
+        local argm = {
+                [1] = args[1],
+                [2] = game.ReplicatedStorage.Weapons["Golden Knife"],
+                [3] = 99/36,
+            [4] = Vector3.new(args[1].Position.X, args[1].Position.Y, args[1].Position.Z)
+            }
+        game:GetService("ReplicatedStorage").Events.Burn:FireServer(unpack(argm))
+        game:GetService("ReplicatedStorage").Events.Burn:FireServer(unpack(argm))
+        game:GetService("ReplicatedStorage").Events.Burn:FireServer(unpack(argm))
+    end
+    end
+    return namecall(self,...)
+end)
